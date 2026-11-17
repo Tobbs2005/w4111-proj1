@@ -1,27 +1,54 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Conference Peer Review System</h1>
-<p class="muted">{{ counts.conferences }} conferences, {{ counts.papers }} papers, {{ counts.people }} people,
-{{ counts.reviews }} reviews, {{ counts.accepted }} accepted papers.</p>
-<p>Choose a view. There is no login: pick who you are from the menu.</p>
+<div class="hero">
+  <h1>Conference Peer Review System</h1>
+  <p class="page-sub">Choose a view. There is no login: pick who you are from the menu.</p>
+  <div class="stats">
+    <div class="stat"><b>{{ counts.conferences }}</b><span>conferences</span></div>
+    <div class="stat"><b>{{ counts.papers }}</b><span>papers</span></div>
+    <div class="stat"><b>{{ counts.people }}</b><span>people</span></div>
+    <div class="stat"><b>{{ counts.reviews }}</b><span>reviews</span></div>
+    <div class="stat"><b>{{ counts.accepted }}</b><span>accepted</span></div>
+  </div>
+</div>
 
-<h2>Public</h2>
-<p><a href="{{ url_for('public_search') }}">Search accepted papers</a> by title, author, topic or conference.</p>
+<div class="card-grid">
+  <div class="card">
+    <h2>Public</h2>
+    <p>Search accepted papers by title, author, topic or conference.</p>
+    <div class="cta"><a class="button" href="{{ url_for('public_search') }}">Browse accepted papers</a></div>
+  </div>
 
-<h2>Author</h2>
-<form method="get" action="{{ url_for('go') }}">
-  <input type="hidden" name="role" value="author">
-  <select name="person_id">{% for a in authors %}<option value="{{ a.person_id }}">{{ a.name }}</option>{% endfor %}</select>
-  <button>Continue as this author</button>
-</form>
+  <div class="card">
+    <h2>Author</h2>
+    <p>See your submissions and their status, and submit new papers.</p>
+    <form method="get" action="{{ url_for('go') }}">
+      <input type="hidden" name="role" value="author">
+      <input name="person" list="author-list" placeholder="Type a name&hellip;" autocomplete="off" required>
+      <datalist id="author-list">
+        {% for a in authors %}<option value="{{ a.name }} (#{{ a.person_id }})">{% endfor %}
+      </datalist>
+      <button>Continue</button>
+    </form>
+  </div>
 
-<h2>Reviewer</h2>
-<form method="get" action="{{ url_for('go') }}">
-  <input type="hidden" name="role" value="reviewer">
-  <select name="person_id">{% for r in reviewers %}<option value="{{ r.person_id }}">{{ r.name }}{% if r.affiliation %} ({{ r.affiliation }}){% endif %}</option>{% endfor %}</select>
-  <button>Continue as this reviewer</button>
-</form>
+  <div class="card">
+    <h2>Reviewer</h2>
+    <p>Bid on papers, see your assignments, and write reviews.</p>
+    <form method="get" action="{{ url_for('go') }}">
+      <input type="hidden" name="role" value="reviewer">
+      <input name="person" list="reviewer-list" placeholder="Type a name&hellip;" autocomplete="off" required>
+      <datalist id="reviewer-list">
+        {% for r in reviewers %}<option value="{{ r.name }} (#{{ r.person_id }})"{% if r.affiliation %} label="{{ r.affiliation }}"{% endif %}>{% endfor %}
+      </datalist>
+      <button>Continue</button>
+    </form>
+  </div>
 
-<h2>Organizer</h2>
-<p><a href="{{ url_for('organizer_home') }}">Conferences, bids, assignments, reviews and decisions</a></p>
+  <div class="card">
+    <h2>Organizer</h2>
+    <p>Conferences, bids, assignments, reviews and decisions.</p>
+    <div class="cta"><a class="button" href="{{ url_for('organizer_home') }}">Open organizer view</a></div>
+  </div>
+</div>
 {% endblock %}

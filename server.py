@@ -17,6 +17,7 @@ User input is always passed as a bound parameter (:name), never pasted
 into the SQL string, so the app is not open to SQL injection.
 """
 import os
+import re
 from datetime import date, timedelta
 from functools import lru_cache
 
@@ -231,16 +232,39 @@ def index():
 
 @app.route("/go")
 def go():
-    """Handles the 'pick who you are' menus on the home page."""
+    """Handles the 'pick who you are' boxes on the home page. Each box is a
+    text input backed by a <datalist>, so the submitted value is either a
+    suggestion of the form "Name (#id)" or a name the user typed freely."""
     role = request.args.get("role")
-    pid = request.args.get("person_id", type=int)
-    if pid is None:
-        return redirect(url_for("index"))
     if role == "author":
-        return redirect(url_for("author_home", aid=pid))
-    if role == "reviewer":
-        return redirect(url_for("reviewer_home", rid=pid))
-    return redirect(url_for("index"))
+        table, endpoint, arg = "Authors", "author_home", "aid"
+    elif role == "reviewer":
+        table, endpoint, arg = "Reviewers", "reviewer_home", "rid"
+    else:
+        return redirect(url_for("index"))
+
+    pid = request.args.get("person_id", type=int)
+    typed = request.args.get("person", "").strip()
+    if pid is None and typed:
+        chosen = re.search(r"\(#(\d+)\)\s*$", typed)
+        if chosen:
+            pid = int(chosen.group(1))
+        else:
+            # A free-typed name: use it if it is the unique prefix of one
+            # person with this role. table is one of our two constant
+            # table names above, never user input.
+            matches = query(f"""
+                SELECT pe.person_id
+                FROM People pe JOIN {table} x ON x.person_id = pe.person_id
+                WHERE pe.name ILIKE :pat ORDER BY pe.person_id LIMIT 2
+            """, pat=typed + "%")
+            if len(matches) == 1:
+                pid = matches[0]["person_id"]
+    if pid is None:
+        if typed:
+            flash(f"No single {role} matches '{typed}'. Pick a name from the suggestions.", "error")
+        return redirect(url_for("index"))
+    return redirect(url_for(endpoint, **{arg: pid}))
 
 
 # =====================================================================

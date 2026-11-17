@@ -33,7 +33,7 @@ the reviewer already has. Reviewers who wrote this paper are left out.</p>
 </form></fieldset>
 
 <fieldset><legend>Decision</legend>
-{% if decision %}<p>Current: <b>{{ decision.outcome }}</b> on {{ decision.decided_on }}{% if decision.comments %} ({{ decision.comments }}){% endif %}</p>
+{% if decision %}<p>Current: <span class="badge badge-{{ decision.outcome }}">{{ decision.outcome }}</span> on {{ decision.decided_on }}{% if decision.comments %} <span class="muted">({{ decision.comments }})</span>{% endif %}</p>
 {% else %}<p>No decision yet.</p>{% endif %}
 <form method="post" action="{{ url_for('organizer_decide', pid=p.paper_id) }}">
   <select name="outcome"><option>accept</option><option>reject</option></select>

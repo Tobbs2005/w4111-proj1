@@ -13,7 +13,7 @@
 </tr>{% else %}<tr><td colspan="4">No assignments yet.</td></tr>{% endfor %}</table>
 
 <h2>Browse papers and bid</h2>
-<form method="get">
+<form method="get" class="filters">
   Search <input name="q" value="{{ q }}">
   Conference <select name="conference_id"><option value="">any</option>
     {% for c in conferences %}<option value="{{ c.conference_id }}" {% if c.conference_id == conf_id %}selected{% endif %}>{{ c.name }} {{ c.year }}</option>{% endfor %}</select>

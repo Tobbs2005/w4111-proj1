@@ -14,7 +14,7 @@
 {% for p in papers %}<tr><td><a href="{{ url_for('organizer_paper', pid=p.paper_id) }}">{{ p.title }}</a></td>
 <td>{{ p.submitted_on }}{% if p.late %} <span class="warn">(after deadline)</span>{% endif %}</td>
 <td>{{ p.bids }}</td><td>{{ p.assigned }}</td><td>{{ p.reviews }}</td>
-<td>{{ p.avg_score if p.avg_score is not none else '-' }}</td><td>{{ p.outcome or 'pending' }}</td></tr>
+<td>{{ p.avg_score if p.avg_score is not none else '-' }}</td><td><span class="badge badge-{{ p.outcome or 'pending' }}">{{ p.outcome or 'pending' }}</span></td></tr>
 {% else %}<tr><td colspan="7">No papers submitted.</td></tr>{% endfor %}</table>
 
 <h2>Reviewer workload at this conference</h2>

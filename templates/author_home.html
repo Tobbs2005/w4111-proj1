@@ -8,7 +8,7 @@
 <table><tr><th>Title</th><th>Conference</th><th>Submitted</th><th>Status</th></tr>
 {% for p in papers %}<tr><td><a href="{{ url_for('paper', pid=p.paper_id) }}">{{ p.title }}</a></td>
 <td>{{ p.conf_name }} {{ p.year }}</td><td>{{ p.submitted_on }}</td>
-<td><b>{{ p.status }}</b>{% if p.decision_note %} ({{ p.decision_note }}){% endif %}</td></tr>
+<td><span class="badge badge-{{ p.status }}">{{ p.status }}</span>{% if p.decision_note %} <span class="muted">({{ p.decision_note }})</span>{% endif %}</td></tr>
 {% else %}<tr><td colspan="4">No papers yet.</td></tr>{% endfor %}</table>
 
 <fieldset><legend>Submit a new paper</legend>

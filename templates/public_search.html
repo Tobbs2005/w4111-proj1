@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>Accepted papers</h1>
-<form method="get">
+<form method="get" class="filters">
   Title <input name="title" value="{{ title }}">
   Author <input name="author" value="{{ author }}">
   Topic <select name="topic_id"><option value="">any</option>
