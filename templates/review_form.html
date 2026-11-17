@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Review: {{ a.title }}</h1>
+<p class="muted">Reviewer {{ person.name }} &middot; assigned {{ a.assigned_on }} &middot; due {{ a.due_on }}</p>
+<p>{{ a.abstract }}</p>
+<form method="post">
+  <p>Score (1-10) <input name="score" type="number" min="1" max="10" value="{{ review.score if review else '' }}" required>
+  Confidence (1-5) <input name="confidence" type="number" min="1" max="5" value="{{ review.confidence if review else '' }}" required></p>
+  <p>Recommendation <select name="recommendation">
+    {% for r in recommendations %}<option {% if review and review.recommendation == r %}selected{% endif %}>{{ r }}</option>{% endfor %}
+  </select></p>
+  <p>Comments<br><textarea name="comments" rows="6" cols="90" maxlength="2000">{{ review.comments if review and review.comments else '' }}</textarea></p>
+  <button>{{ 'Update review' if review else 'Submit review' }}</button>
+  <a href="{{ url_for('reviewer_home', rid=person.person_id) }}">cancel</a>
+</form>
+{% endblock %}

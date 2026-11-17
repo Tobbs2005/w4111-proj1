@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Organizer view</h1>
+<h2>Conferences</h2>
+<table><tr><th>Conference</th><th>Deadline</th><th>Papers</th><th>Accepted</th><th>Rejected</th><th>Pending</th></tr>
+{% for c in conferences %}<tr><td><a href="{{ url_for('organizer_conference', cid=c.conference_id) }}">{{ c.name }} {{ c.year }}</a></td>
+<td>{{ c.deadline }}</td><td>{{ c.papers }}</td><td>{{ c.accepted }}</td><td>{{ c.rejected }}</td><td>{{ c.pending }}</td></tr>{% endfor %}
+</table>
+<h2>Acceptance ratio by topic (all conferences)</h2>
+<table><tr><th>Topic</th><th>Papers</th><th>Decided</th><th>Accepted</th><th>Acceptance %</th></tr>
+{% for t in topic_stats %}<tr><td>{{ t.topic_name }}</td><td>{{ t.papers }}</td><td>{{ t.decided }}</td><td>{{ t.accepted }}</td>
+<td>{{ t.accept_pct if t.accept_pct is not none else '-' }}</td></tr>{% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ p.title }}</h1>
+<p><b>{{ p.conf_name }} {{ p.year }}</b> &middot; submitted {{ p.submitted_on }} &middot;
+status: {{ p.decision_note or p.outcome or 'pending' }}</p>
+<p><b>Authors:</b>
+{% for a in authors %}<a href="{{ url_for('public_author', aid=a.person_id) }}">{{ a.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</p>
+<p><b>Topics:</b> {% for t in topics %}{{ t.topic_name }}{% if not loop.last %}; {% endif %}{% endfor %}</p>
+<h3>Abstract</h3>
+<p>{{ p.abstract }}</p>
+{% endblock %}

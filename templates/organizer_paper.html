@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ p.title }}</h1>
+<p><a href="{{ url_for('organizer_conference', cid=p.conference_id) }}">{{ p.conf_name }} {{ p.year }}</a>
+ &middot; submitted {{ p.submitted_on }} &middot; authors: {% for a in authors %}{{ a.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+
+<h2>Bids</h2>
+<table><tr><th>Reviewer</th><th>Affiliation</th><th>Bid</th><th>Assigned?</th></tr>
+{% for b in bids %}<tr><td>{{ b.name }}</td><td>{{ b.affiliation or '' }}</td><td>{{ b.bid_value }}</td><td>{{ 'yes' if b.assigned else 'no' }}</td></tr>
+{% else %}<tr><td colspan="4">No bids.</td></tr>{% endfor %}</table>
+
+<h2>Assignments and reviews</h2>
+<p>{{ summary.n }} review(s); average score {{ summary.avg_score if summary.avg_score is not none else '-' }};
+confidence-weighted score {{ summary.weighted if summary.weighted is not none else '-' }};
+{{ summary.positive }} positive recommendation(s).</p>
+<table><tr><th>Reviewer</th><th>Due</th><th>Score</th><th>Conf.</th><th>Recommendation</th><th>Comments</th><th></th></tr>
+{% for r in reviews %}<tr><td>{{ r.name }}</td><td>{{ r.due_on }}</td>
+{% if r.score is not none %}<td>{{ r.score }}</td><td>{{ r.confidence }}</td><td>{{ r.recommendation }}</td><td>{{ r.comments or '' }}</td>
+{% else %}<td colspan="4"><i>review not submitted</i></td>{% endif %}
+<td><form class="inline" method="post" action="{{ url_for('organizer_unassign', pid=p.paper_id) }}">
+  <input type="hidden" name="reviewer_id" value="{{ r.person_id }}"><button>Remove</button></form></td></tr>
+{% else %}<tr><td colspan="7">No reviewers assigned.</td></tr>{% endfor %}</table>
+
+<fieldset><legend>Assign a reviewer</legend>
+<p class="muted">Suggestions are ordered by bid on this paper (highest first), then by how many papers
+the reviewer already has. Reviewers who wrote this paper are left out.</p>
+<form method="post" action="{{ url_for('organizer_assign', pid=p.paper_id) }}">
+  <select name="reviewer_id">
+  {% for s in suggestions %}<option value="{{ s.person_id }}">{{ s.name }}: bid {{ s.bid_value or 'none' }}, {{ s.load }} papers assigned</option>{% endfor %}
+  </select>
+  Due <input name="due_on" type="date" value="{{ default_due }}">
+  <button>Assign</button>
+</form></fieldset>
+
+<fieldset><legend>Decision</legend>
+{% if decision %}<p>Current: <b>{{ decision.outcome }}</b> on {{ decision.decided_on }}{% if decision.comments %} ({{ decision.comments }}){% endif %}</p>
+{% else %}<p>No decision yet.</p>{% endif %}
+<form method="post" action="{{ url_for('organizer_decide', pid=p.paper_id) }}">
+  <select name="outcome"><option>accept</option><option>reject</option></select>
+  Comments <input name="comments" size="50" maxlength="1000" placeholder="e.g. Accept (Poster)">
+  <button>{{ 'Change decision' if decision else 'Record decision' }}</button>
+</form></fieldset>
+{% endblock %}

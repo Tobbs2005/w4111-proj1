@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ conf.name }} {{ conf.year }}</h1>
+<p>Submission deadline: {{ conf.deadline }} &middot; <a href="{{ url_for('organizer_home') }}">all conferences</a></p>
+
+<h2>Ready for a decision</h2>
+<p class="muted">Undecided papers where every assigned reviewer has submitted a review.</p>
+<table><tr><th>Paper</th><th>Reviews</th><th>Avg score</th></tr>
+{% for p in ready %}<tr><td><a href="{{ url_for('organizer_paper', pid=p.paper_id) }}">{{ p.title }}</a></td><td>{{ p.reviews }}</td><td>{{ p.avg_score }}</td></tr>
+{% else %}<tr><td colspan="3">None.</td></tr>{% endfor %}</table>
+
+<h2>Submitted papers</h2>
+<table><tr><th>Paper</th><th>Submitted</th><th>Bids</th><th>Assigned</th><th>Reviews</th><th>Avg score</th><th>Decision</th></tr>
+{% for p in papers %}<tr><td><a href="{{ url_for('organizer_paper', pid=p.paper_id) }}">{{ p.title }}</a></td>
+<td>{{ p.submitted_on }}{% if p.late %} <span class="warn">(after deadline)</span>{% endif %}</td>
+<td>{{ p.bids }}</td><td>{{ p.assigned }}</td><td>{{ p.reviews }}</td>
+<td>{{ p.avg_score if p.avg_score is not none else '-' }}</td><td>{{ p.outcome or 'pending' }}</td></tr>
+{% else %}<tr><td colspan="7">No papers submitted.</td></tr>{% endfor %}</table>
+
+<h2>Reviewer workload at this conference</h2>
+<table><tr><th>Reviewer</th><th>Affiliation</th><th>Assigned</th><th>Reviewed</th></tr>
+{% for w in workload %}<tr><td>{{ w.name }}</td><td>{{ w.affiliation or '' }}</td><td>{{ w.assigned }}</td><td>{{ w.reviewed }}</td></tr>
+{% else %}<tr><td colspan="4">No assignments yet.</td></tr>{% endfor %}</table>
+{% endblock %}

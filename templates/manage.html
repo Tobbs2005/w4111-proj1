@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Manage people, conferences and topics</h1>
+
+<h2>People</h2>
+<p class="muted">Authors and reviewers are overlapping roles of a person: one person can be both.</p>
+<fieldset><legend>Add a person</legend>
+<form method="post" action="{{ url_for('add_person') }}">
+  Name <input name="name" required> Email <input name="email" type="email" required>
+  Affiliation <input name="affiliation">
+  <label><input type="checkbox" name="roles" value="author"> author</label>
+  <label><input type="checkbox" name="roles" value="reviewer"> reviewer</label>
+  <button>Add</button>
+</form></fieldset>
+<table><tr><th>Name</th><th>Email</th><th>Affiliation</th><th>Author</th><th>Reviewer</th></tr>
+{% for pe in people %}<tr><td>{{ pe.name }}</td><td>{{ pe.email }}</td><td>{{ pe.affiliation or '' }}</td>
+<td>{% if pe.is_author %}<a href="{{ url_for('author_home', aid=pe.person_id) }}">yes</a>{% else %}
+  <form class="inline" method="post" action="{{ url_for('add_role') }}"><input type="hidden" name="person_id" value="{{ pe.person_id }}">
+  <input type="hidden" name="role" value="author"><button>make author</button></form>{% endif %}</td>
+<td>{% if pe.is_reviewer %}<a href="{{ url_for('reviewer_home', rid=pe.person_id) }}">yes</a>{% else %}
+  <form class="inline" method="post" action="{{ url_for('add_role') }}"><input type="hidden" name="person_id" value="{{ pe.person_id }}">
+  <input type="hidden" name="role" value="reviewer"><button>make reviewer</button></form>{% endif %}</td></tr>{% endfor %}
+</table>
+
+<h2>Conferences</h2>
+<fieldset><legend>Add a conference</legend>
+<form method="post" action="{{ url_for('add_conference') }}">
+  Name <input name="name" maxlength="100" required> Year <input name="year" type="number" required>
+  Submission deadline <input name="deadline" type="date" required> <button>Add</button>
+</form>
+<p class="muted">The deadline must fall in the conference year or the year before.</p></fieldset>
+<ul>{% for c in conferences %}<li><a href="{{ url_for('organizer_conference', cid=c.conference_id) }}">{{ c.name }} {{ c.year }}</a> (deadline {{ c.deadline }})</li>{% endfor %}</ul>
+
+<h2>Topics</h2>
+<fieldset><legend>Add a topic</legend>
+<form method="post" action="{{ url_for('add_topic') }}"><input name="topic_name" size="60" maxlength="150" required> <button>Add</button></form></fieldset>
+<ul>{% for t in topics %}<li>{{ t.topic_name }}</li>{% endfor %}</ul>
+{% endblock %}
