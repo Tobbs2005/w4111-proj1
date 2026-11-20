@@ -354,7 +354,7 @@ fieldset p { margin: 10px 0; }
   color: var(--accent-dark);
 }
 
-.stat span { font-size: 12.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.stat > span { font-size: 12.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
 .card-grid {
   display: grid;
@@ -401,3 +401,104 @@ a.button:hover { background: var(--accent-dark); color: #fff; }
   .container { padding: 20px 14px 32px; }
   table { display: block; overflow-x: auto; }
 }
+
+/* =====================================================================
+   Layout helpers added for long lists, numbers and dashboards
+   ===================================================================== */
+
+/* Small label above a page title, e.g. "Reviewer view". */
+.eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.eyebrow + h1 { margin-top: 2px; }
+
+.nowrap { white-space: nowrap; }
+th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Long tables scroll inside a box with a sticky header row. */
+.scroll {
+  max-height: 560px;
+  overflow: auto;
+  margin: 10px 0 24px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.scroll table { margin: 0; border: none; border-radius: 0; box-shadow: none; overflow: visible; }
+.scroll th { position: sticky; top: 0; z-index: 1; }
+.count { font-size: 13px; color: var(--muted); font-family: var(--sans); font-weight: 400; margin-left: 6px; }
+
+/* Bid dropdown + Save on one line. */
+td form.inline { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+td form.inline select { padding: 4px 8px; }
+
+/* Small link that looks like a secondary button. */
+a.small-button {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  background: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+}
+a.small-button:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+/* Muted table rows (e.g. conferences with no papers yet). */
+tr.dim > td, tr.dim > td a { color: var(--muted); }
+
+/* Recommendation badges. */
+.badge-strong-accept, .badge-accept-rec { background: var(--ok-soft); color: var(--ok); }
+.badge-weak-accept { background: #eef6e8; color: #4d7a1a; }
+.badge-weak-reject { background: var(--gold-soft); color: var(--gold); }
+.badge-reject-rec, .badge-strong-reject { background: var(--warn-soft); color: var(--warn); }
+.badge-overdue { background: var(--warn-soft); color: var(--warn); }
+
+/* Horizontal percentage bar (topic acceptance). */
+.bar-cell { display: flex; align-items: center; gap: 10px; min-width: 160px; }
+.bar { flex: 1; height: 8px; background: #ecebe6; border-radius: 999px; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--ok); border-radius: 999px; }
+.bar-cell b { font-weight: 600; font-variant-numeric: tabular-nums; min-width: 44px; text-align: right; }
+
+/* Stat tiles used inside pages (smaller than the home page ones). */
+.stats.compact .stat { padding: 8px 14px; min-width: 92px; }
+.stats.compact .stat b { font-size: 19px; }
+.stat b .badge { font-family: var(--sans); font-size: 13px; vertical-align: middle; }
+
+/* Two cards side by side (stack on small screens). */
+.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0 20px; }
+.two-col > fieldset { margin-top: 8px; }
+.two-col select { width: 100%; }
+
+/* Paper detail card. */
+.paper-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 24px;
+  margin: 12px 0 24px;
+}
+.paper-card dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0 0 6px; }
+.paper-card dt { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; padding-top: 2px; }
+.paper-card dd { margin: 0; }
+.paper-card .abstract { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 12px; line-height: 1.65; }
+
+/* Long review comments collapse into a one-line preview. */
+details summary { cursor: pointer; color: var(--ink-soft); }
+details[open] summary { margin-bottom: 6px; color: var(--muted); }
+
+/* Form fields in a grid. */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; }
+.form-grid .full { grid-column: 1 / -1; }
+.form-grid label.field { display: block; font-weight: 600; font-size: 14px; margin: 10px 0 4px; }
+.form-grid select[multiple] { width: 100%; }
+@media (max-width: 720px) { .form-grid { grid-template-columns: 1fr; } }

@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Review: {{ a.title }}</h1>
+<p class="eyebrow">Write a review</p>
+<h1>{{ a.title }}</h1>
 <p class="muted">Reviewer {{ person.name }} &middot; assigned {{ a.assigned_on }} &middot; due {{ a.due_on }}</p>
-<p>{{ a.abstract }}</p>
+<div class="paper-card"><div><b>Abstract</b><br>{{ a.abstract }}</div></div>
 <form method="post">
   <p>Score (1-10) <input name="score" type="number" min="1" max="10" value="{{ review.score if review else '' }}" required>
   Confidence (1-5) <input name="confidence" type="number" min="1" max="5" value="{{ review.confidence if review else '' }}" required></p>

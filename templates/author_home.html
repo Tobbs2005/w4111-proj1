@@ -1,31 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Author view: {{ person.name }}</h1>
+<p class="eyebrow">Author view</p>
+<h1>{{ person.name }}</h1>
 <p class="muted">{{ person.email }}{% if person.affiliation %} &middot; {{ person.affiliation }}{% endif %}
  &middot; <a href="{{ url_for('public_author', aid=person.person_id) }}">public page</a></p>
 
-<h2>My papers</h2>
+<h2>My papers <span class="count">{{ papers|length }}</span></h2>
 <table><tr><th>Title</th><th>Conference</th><th>Submitted</th><th>Status</th></tr>
 {% for p in papers %}<tr><td><a href="{{ url_for('paper', pid=p.paper_id) }}">{{ p.title }}</a></td>
-<td>{{ p.conf_name }} {{ p.year }}</td><td>{{ p.submitted_on }}</td>
-<td><span class="badge badge-{{ p.status }}">{{ p.status }}</span>{% if p.decision_note %} <span class="muted">({{ p.decision_note }})</span>{% endif %}</td></tr>
+<td class="nowrap">{{ p.conf_name }} {{ p.year }}</td><td class="nowrap">{{ p.submitted_on }}</td>
+<td><span class="badge badge-{{ p.status }}">{{ p.status }}</span>{% if p.decision_note %}<br><span class="muted">{{ p.decision_note }}</span>{% endif %}</td></tr>
 {% else %}<tr><td colspan="4">No papers yet.</td></tr>{% endfor %}</table>
 
 <fieldset><legend>Submit a new paper</legend>
-<form method="post" action="{{ url_for('author_submit', aid=person.person_id) }}">
-  <p>Conference <select name="conference_id">
+<p class="muted">Fill in this form to submit a new paper. Your existing papers are listed above.</p>
+<form method="post" action="{{ url_for('author_submit', aid=person.person_id) }}" class="form-grid">
+  <div class="full"><label class="field" for="conference_id">Conference</label>
+  <select name="conference_id" id="conference_id">
     {% for c in conferences %}<option value="{{ c.conference_id }}">{{ c.name }} {{ c.year }} (deadline {{ c.deadline }})</option>{% endfor %}
-  </select></p>
-  <p>Title<br><input name="title" size="90" maxlength="300" required></p>
-  <p>Abstract<br><textarea name="abstract" rows="5" cols="90" required></textarea></p>
-  <p>Topics (at least one; ctrl/cmd-click to pick several)<br>
-  <select name="topic_ids" multiple size="6" required>
+  </select></div>
+  <div class="full"><label class="field" for="title">Title of the new paper</label>
+  <input name="title" id="title" size="90" maxlength="300" placeholder="e.g. A Study of Peer Review at ML Conferences" required></div>
+  <div class="full"><label class="field" for="abstract">Abstract of the new paper</label>
+  <textarea name="abstract" id="abstract" rows="5" placeholder="A short summary of the paper" required></textarea></div>
+  <div><label class="field" for="topic_ids">Topics <span class="muted">(at least one; ctrl/cmd-click for several)</span></label>
+  <select name="topic_ids" id="topic_ids" multiple size="8" required>
     {% for t in topics %}<option value="{{ t.topic_id }}">{{ t.topic_name }}</option>{% endfor %}
-  </select></p>
-  <p>Co-authors (optional; you are added automatically)<br>
-  <select name="coauthor_ids" multiple size="6">
+  </select></div>
+  <div><label class="field" for="coauthor_ids">Co-authors <span class="muted">(optional; you are added automatically)</span></label>
+  <select name="coauthor_ids" id="coauthor_ids" multiple size="8">
     {% for a in coauthors %}<option value="{{ a.person_id }}">{{ a.name }}</option>{% endfor %}
-  </select></p>
-  <button>Submit paper</button>
+  </select></div>
+  <div class="full"><p><button>Submit paper</button></p></div>
 </form></fieldset>
 {% endblock %}

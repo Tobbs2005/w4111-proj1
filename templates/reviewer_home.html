@@ -1,20 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Reviewer view: {{ person.name }}</h1>
+<p class="eyebrow">Reviewer view</p>
+<h1>{{ person.name }}</h1>
 <p class="muted">{{ person.email }}{% if person.affiliation %} &middot; {{ person.affiliation }}{% endif %}</p>
+
+{% set done = assignments|selectattr('score', 'ne', none)|list|length %}
+<div class="stats compact">
+  <div class="stat"><b>{{ assignments|length }}</b><span>assigned</span></div>
+  <div class="stat"><b>{{ done }}</b><span>reviewed</span></div>
+  <div class="stat"><b>{{ assignments|selectattr('overdue')|list|length }}</b><span>overdue</span></div>
+</div>
 
 <h2>My assigned papers</h2>
 <table><tr><th>Paper</th><th>Due</th><th>My review</th><th></th></tr>
 {% for a in assignments %}<tr>
 <td><a href="{{ url_for('paper', pid=a.paper_id) }}">{{ a.title }}</a></td>
-<td>{{ a.due_on }}{% if a.overdue %} <span class="warn">(overdue)</span>{% endif %}</td>
-<td>{% if a.score is not none %}score {{ a.score }}, confidence {{ a.confidence }}, {{ a.recommendation }}{% else %}<i>not submitted</i>{% endif %}</td>
-<td><a href="{{ url_for('reviewer_review', rid=person.person_id, pid=a.paper_id) }}">{{ 'Edit review' if a.score is not none else 'Write review' }}</a></td>
+<td class="nowrap">{{ a.due_on }}{% if a.overdue %} <span class="badge badge-overdue">overdue</span>{% endif %}</td>
+<td>{% if a.score is not none %}<span class="nowrap">score <b>{{ a.score }}</b> &middot; conf. {{ a.confidence }}</span>
+  <span class="badge badge-{{ a.recommendation|replace(' ', '-') }}{% if a.recommendation in ('accept', 'reject') %}-rec{% endif %}">{{ a.recommendation }}</span>
+  {% else %}<i class="muted">not submitted</i>{% endif %}</td>
+<td><a class="small-button" href="{{ url_for('reviewer_review', rid=person.person_id, pid=a.paper_id) }}">{{ 'Edit review' if a.score is not none else 'Write review' }}</a></td>
 </tr>{% else %}<tr><td colspan="4">No assignments yet.</td></tr>{% endfor %}</table>
 
-<h2>Browse papers and bid</h2>
+<h2>Browse papers and bid <span class="count">{{ papers|length }} papers</span></h2>
 <form method="get" class="filters">
-  Search <input name="q" value="{{ q }}">
+  Search <input name="q" value="{{ q }}" placeholder="title or abstract">
   Conference <select name="conference_id"><option value="">any</option>
     {% for c in conferences %}<option value="{{ c.conference_id }}" {% if c.conference_id == conf_id %}selected{% endif %}>{{ c.name }} {{ c.year }}</option>{% endfor %}</select>
   Topic <select name="topic_id"><option value="">any</option>
@@ -22,15 +32,15 @@
   <button>Search</button>
 </form>
 <p class="muted">Bid 1 (not interested) to 5 (very interested). Bidding again changes your bid.</p>
-<table><tr><th>Paper</th><th>Conference</th><th>My bid</th><th>Bid</th></tr>
+<div class="scroll"><table><tr><th>Paper</th><th>Conference</th><th class="num">My bid</th><th>Bid</th></tr>
 {% for p in papers %}<tr>
 <td><a href="{{ url_for('paper', pid=p.paper_id) }}">{{ p.title }}</a>{% if p.decided %} <span class="muted">(decided)</span>{% endif %}</td>
-<td>{{ p.conf_name }} {{ p.year }}</td><td>{{ p.bid_value or '-' }}</td>
-<td>{% if p.conflict %}<span class="muted">your own paper</span>{% else %}
+<td class="nowrap">{{ p.conf_name }} {{ p.year }}</td><td class="num">{{ p.bid_value or '-' }}</td>
+<td>{% if p.conflict %}<span class="muted nowrap">your own paper</span>{% else %}
 <form class="inline" method="post" action="{{ url_for('reviewer_bid', rid=person.person_id) }}">
   <input type="hidden" name="paper_id" value="{{ p.paper_id }}">
   <input type="hidden" name="next" value="{{ request.full_path }}">
   <select name="bid_value">{% for v in [5,4,3,2,1] %}<option {% if p.bid_value == v %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
   <button>Save</button></form>{% endif %}</td>
-</tr>{% else %}<tr><td colspan="4">No papers match.</td></tr>{% endfor %}</table>
+</tr>{% else %}<tr><td colspan="4">No papers match.</td></tr>{% endfor %}</table></div>
 {% endblock %}

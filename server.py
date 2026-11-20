@@ -465,7 +465,11 @@ def reviewer_bid(rid):
             raise FormError("You cannot bid on a paper you wrote.")
         commit_or_report("Bid saved.")
 
-    return run_write(action, request.form.get("next") or url_for("reviewer_home", rid=rid))
+    # Only follow "next" if it is a path on this site (no open redirect).
+    nxt = request.form.get("next", "")
+    if not (nxt.startswith("/") and not nxt.startswith("//")):
+        nxt = url_for("reviewer_home", rid=rid)
+    return run_write(action, nxt)
 
 
 @app.route("/reviewer/<int:rid>/review/<int:pid>", methods=["GET", "POST"])
@@ -778,6 +782,24 @@ def add_topic():
 @app.errorhandler(404)
 def not_found(e):
     return render_template("error.html", message="Page not found."), 404
+
+
+@app.errorhandler(DBAPIError)
+def database_error(e):
+    """A query failed (e.g. a number in the URL too large for an INTEGER
+    column). Roll back and show a friendly page instead of a crash."""
+    app.logger.warning("Query failed (%s)", type(e).__name__)
+    try:
+        if g.get("conn") is not None:
+            g.conn.rollback()
+    except SQLAlchemyError:
+        pass
+    return render_template("error.html", message="That request could not be completed. Please check your input."), 400
+
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_template("error.html", message="Something went wrong. Please go back and try again."), 500
 
 
 if __name__ == "__main__":

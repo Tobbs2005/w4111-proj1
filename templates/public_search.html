@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+<p class="eyebrow">Public view</p>
 <h1>Accepted papers</h1>
 <form method="get" class="filters">
   Title <input name="title" value="{{ title }}">
@@ -10,12 +11,12 @@
     {% for c in conferences %}<option value="{{ c.conference_id }}" {% if c.conference_id == conf_id %}selected{% endif %}>{{ c.name }} {{ c.year }}</option>{% endfor %}</select>
   <button>Search</button> <a href="{{ url_for('public_search') }}">clear</a>
 </form>
-<p>{{ papers|length }} result(s)</p>
-<table>
+<p class="muted">{{ papers|length }} result(s)</p>
+<div class="scroll"><table>
 <tr><th>Title</th><th>Authors</th><th>Topics</th><th>Conference</th></tr>
 {% for p in papers %}
 <tr><td><a href="{{ url_for('paper', pid=p.paper_id) }}">{{ p.title }}</a><br><span class="muted">{{ p.decision_note or '' }}</span></td>
-<td>{{ p.authors or '' }}</td><td>{{ p.topics or '' }}</td><td>{{ p.conf_name }} {{ p.year }}</td></tr>
+<td>{{ p.authors or '' }}</td><td>{{ p.topics or '' }}</td><td class="nowrap">{{ p.conf_name }} {{ p.year }}</td></tr>
 {% else %}<tr><td colspan="4">No accepted papers match.</td></tr>{% endfor %}
-</table>
+</table></div>
 {% endblock %}

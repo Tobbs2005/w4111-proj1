@@ -1,63 +1,68 @@
-# COMS W4111 Project 1 Flask Starter
+# COMS W4111 Project 1, Part 3: Conference Peer Review System
 
-This is the course's example Flask webserver, adapted for **Python 3.14.6**
-and **Google Cloud Run**. It uses SQLAlchemy connections and explicit,
-parameterized SQL, not an ORM.
+Team: Cecilia Yang (zy2644), Ziyue (Toby) Fang (zf2389)
 
-## Getting started
+## 1. PostgreSQL account
 
-Follow the Project 1 Part 3 webpage to create your team's private
-GitHub repository. Then open [`docs/cloud-run-setup.html`](docs/cloud-run-setup.html)
-for the Console-only setup instructions. These continue from the Google Cloud
-project, proxy key, and PostgreSQL account you already used for Part 2.
+`<YOUR_PG_USERNAME>`. This is the same database we used for Part 2.
 
-## Local development
+## 2. Web application URL
 
-1. Follow the assignment instructions to create a virtual environment.
-2. Install dependencies from `requirements.txt` with `pip`.
-3. Create a private `.env` file. Flask loads `.env` when you run `python server.py`.
-4. Run the Cloud SQL Auth Proxy on the same computer as the local app.
+https://project1-web-233380246940.us-east1.run.app
 
-> [!WARNING]
-> Never commit `.env` or include it in your submission.
+## 3. What we implemented
 
-## What to commit
+We implemented every part of our Part 1 proposal. The app has four views.
+There is no login: as in our proposal, the user picks an author or reviewer
+by name on the home page.
 
-Commit and push the contents of this directory at the **root** of your team's
-repository, including `.python-version`, `.gitignore`, and `.gcloudignore`.
+- **Public:** search accepted papers by title, author, topic and
+  conference, and see each author's accepted papers.
+- **Author:** see your own papers and their status (pending, accept or
+  reject), and submit a new paper with topics and co-authors.
+- **Reviewer:** search papers, place or change bids, see your
+  assignments (overdue ones are marked), and submit or edit reviews.
+- **Organizer:** paper counts and decisions for each conference,
+  acceptance rate by topic, reviewer workload, and the bids and reviews for
+  each paper. Organizers can assign or remove reviewers, see suggested
+  reviewers, and record decisions.
 
-Do **not** commit:
+New features that were not in the proposal:
 
-- the ZIP itself
-- an enclosing directory
-- `proxy-key.json`
-- database passwords
-- `.env` files
-- local virtual environments
+- A **Manage** page to add people (as author, reviewer or both),
+  conferences and topics.
+- A list of papers that are **ready for a decision**, meaning every
+  assigned reviewer has submitted a review.
+- A **confidence-weighted** average score for each paper.
 
-## Files
+Not implemented: nothing.
 
-| Path                       | Description                            |
-| -------------------------- | -------------------------------------- |
-| `server.py`                | Flask routes and direct SQL examples   |
-| `requirements.txt`         | Python dependencies                    |
-| `Procfile`                 | Gunicorn startup command for Cloud Run |
-| `.python-version`          | Python runtime selection               |
-| `templates/`               | Example HTML templates                 |
-| `static/`                  | Example stylesheet                     |
-| `docs/cloud-run-setup.html`| Setup instructions                     |
-| `tests/test_server.py`     | Tests with mocked database connections |
+## 4. Two interesting pages
 
-## Example table
+**Organizer conference page (`/organizer/conference/<id>`).** Shows every
+paper in a conference with its number of bids, assignments and reviews, its
+average score and its decision. The most interesting query finds undecided
+papers where *every* assigned reviewer has turned in a review. This is a
+"for all" (division) query written with two nested `NOT EXISTS`: there is no
+assignment for this paper that lacks a review. The page also shows each
+reviewer's workload in that conference (assigned vs. reviewed). The
+conference ID in the URL is the input to all of these queries.
 
-The starter does not create tables when imported. If the example test table
-is missing, click **Initialize example table** on the homepage. The button
-disappears once the table exists. No extra setting or deployment is needed.
+**Organizer paper page (`/organizer/paper/<id>`).** Shows a paper's bids,
+assignments and reviews, with average and confidence-weighted scores. It
+suggests reviewers ranked by their bid on this paper, then by how many
+papers they already have. Assigned reviewers and the paper's own authors are
+left out. The organizer picks a reviewer from that list and a due date to
+assign them. The assignment is a single `INSERT ... SELECT ... WHERE NOT
+EXISTS` that refuses an author of the paper. The organizer can also record
+or change the decision (`INSERT ... ON CONFLICT DO UPDATE`). This page is
+interesting because it combines three relationships (Bids_On, Assigned_To,
+Reviews) and enforces rules in SQL that our schema can't enforce alone.
 
-Replace the example routes and templates with your own Part 3 application.
-Do not initialize over meaningful existing data.
+## 5. AI tools
 
-## Note
-
-This is a public teaching example, not an authenticated application.
-Use invented demonstration data and never commit credentials.
+We used Claude (Claude Code) to help write and review the Flask routes,
+SQL queries and HTML templates, to restyle the UI, and to check the project
+against the assignment requirements. We tested all the code ourselves
+against our database, and we checked that all SQL uses bound parameters
+(no SQL injection) and that there is no ORM.

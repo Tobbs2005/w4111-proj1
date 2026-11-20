@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Accepted papers by {{ person.name }}</h1>
+<p class="eyebrow">Public view &middot; accepted papers</p>
+<h1>{{ person.name }}</h1>
 <p class="muted">{{ person.affiliation or '' }}</p>
 <table><tr><th>Title</th><th>Conference</th><th>Decision</th></tr>
 {% for p in papers %}<tr><td><a href="{{ url_for('paper', pid=p.paper_id) }}">{{ p.title }}</a></td>
-<td>{{ p.conf_name }} {{ p.year }}</td><td>{{ p.decision_note or 'accept' }}</td></tr>
+<td class="nowrap">{{ p.conf_name }} {{ p.year }}</td><td>{{ p.decision_note or 'accept' }}</td></tr>
 {% else %}<tr><td colspan="3">No accepted papers yet.</td></tr>{% endfor %}</table>
 {% endblock %}

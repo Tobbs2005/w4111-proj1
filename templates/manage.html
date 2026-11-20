@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Manage people, conferences and topics</h1>
+<p class="eyebrow">Manage</p>
+<h1>People, conferences and topics</h1>
 
-<h2>People</h2>
+<h2>People <span class="count">{{ people|length }}</span></h2>
 <p class="muted">Authors and reviewers are overlapping roles of a person: one person can be both.</p>
 <fieldset><legend>Add a person</legend>
 <form method="post" action="{{ url_for('add_person') }}">
@@ -12,7 +13,7 @@
   <label><input type="checkbox" name="roles" value="reviewer"> reviewer</label>
   <button>Add</button>
 </form></fieldset>
-<table><tr><th>Name</th><th>Email</th><th>Affiliation</th><th>Author</th><th>Reviewer</th></tr>
+<div class="scroll"><table><tr><th>Name</th><th>Email</th><th>Affiliation</th><th>Author</th><th>Reviewer</th></tr>
 {% for pe in people %}<tr><td>{{ pe.name }}</td><td>{{ pe.email }}</td><td>{{ pe.affiliation or '' }}</td>
 <td>{% if pe.is_author %}<a href="{{ url_for('author_home', aid=pe.person_id) }}">yes</a>{% else %}
   <form class="inline" method="post" action="{{ url_for('add_role') }}"><input type="hidden" name="person_id" value="{{ pe.person_id }}">
@@ -20,7 +21,7 @@
 <td>{% if pe.is_reviewer %}<a href="{{ url_for('reviewer_home', rid=pe.person_id) }}">yes</a>{% else %}
   <form class="inline" method="post" action="{{ url_for('add_role') }}"><input type="hidden" name="person_id" value="{{ pe.person_id }}">
   <input type="hidden" name="role" value="reviewer"><button>make reviewer</button></form>{% endif %}</td></tr>{% endfor %}
-</table>
+</table></div>
 
 <h2>Conferences</h2>
 <fieldset><legend>Add a conference</legend>
