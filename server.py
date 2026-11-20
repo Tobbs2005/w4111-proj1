@@ -244,6 +244,22 @@ def decision_label(note):
     return first if len(first) <= 80 else first[:77].rstrip() + "..."
 
 
+@app.template_filter("review_body")
+def review_body(comments):
+    """Review text for a one-line preview. Imported reviews start with our
+    own data notes ('[original rating 4/5; ...]' lines) and an OpenReview
+    link; the preview skips those so it shows what the reviewer wrote."""
+    if not comments:
+        return ""
+    lines = comments.splitlines()
+    i = 0
+    while i < len(lines) and (not lines[i].strip()
+                              or re.fullmatch(r"\s*\[[^\]]*\]\s*", lines[i])
+                              or re.fullmatch(r"\s*https?://\S+\s*", lines[i])):
+        i += 1
+    return " ".join(line.strip() for line in lines[i:] if line.strip())
+
+
 # =====================================================================
 # Home: choose a view (and, for authors/reviewers, who you are)
 # =====================================================================

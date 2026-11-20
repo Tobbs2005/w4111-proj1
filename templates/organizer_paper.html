@@ -22,7 +22,7 @@
 <table><tr><th>Reviewer</th><th>Due</th><th class="num">Score</th><th class="num">Conf.</th><th>Recommendation</th><th>Comments</th><th></th></tr>
 {% for r in reviews %}<tr><td>{{ r.name }}</td><td class="nowrap">{{ r.due_on }}</td>
 {% if r.score is not none %}<td class="num">{{ r.score }}</td><td class="num">{{ r.confidence }}</td><td>{{ rec_badge(r.recommendation) }}</td>
-<td>{% if r.comments and r.comments|length > 160 %}<details><summary>{{ r.comments[:160] }}&hellip;</summary>{{ r.comments }}</details>{% else %}{{ r.comments or '' }}{% endif %}</td>
+<td>{% set body = r.comments|review_body %}{% if r.comments and (body|length > 160 or body != r.comments.strip()) %}<details><summary>{{ body[:160] or 'Show comments' }}{% if body|length > 160 %}&hellip;{% endif %}</summary><p class="full-text">{{ r.comments }}</p></details>{% else %}{{ r.comments or '' }}{% endif %}</td>
 {% else %}<td colspan="4" class="muted">review not turned in yet</td>{% endif %}
 <td><form class="inline" method="post" action="{{ url_for('organizer_unassign', pid=p.paper_id) }}">
   <input type="hidden" name="reviewer_id" value="{{ r.person_id }}"><button>Remove</button></form></td></tr>

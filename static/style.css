@@ -178,3 +178,4 @@ details summary { cursor: pointer; }
 .views td button:hover { background: #143c70; }
 .form-grid textarea { max-width: none; }
 .note { white-space: pre-line; color: var(--muted); }
+.full-text { white-space: pre-line; margin: 6px 0 0; }
