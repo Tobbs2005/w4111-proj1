@@ -75,8 +75,8 @@ generated reviews.
   ratings are kept in the review comments, e.g.
   `[original rating 5/6; score=8/10]`.
 - Assignment dates and reviewer bids are generated sample data.
-- Sixteen papers have a second topic, chosen from their titles and
-  abstracts.
+- Sixteen papers have two relevant topics to demonstrate the many-to-many
+  paper–topic relationship.
 - Most imported reviewer names are paper-specific anonymous labels
   (e.g. `ICLR 2024 #9310 Reviewer_BqAx`). Emails are placeholders, and
   affiliations we could not find are left blank.
