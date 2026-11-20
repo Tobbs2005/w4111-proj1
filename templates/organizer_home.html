@@ -1,16 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-<p class="eyebrow">Organizer view</p>
+<p class="crumbs">Organizer</p>
 <h1>Conferences</h1>
-<table><tr><th>Conference</th><th>Deadline</th><th class="num">Papers</th><th class="num">Accepted</th><th class="num">Rejected</th><th class="num">Pending</th></tr>
+<div class="goal"><p>See where each conference stands. Open a conference to find papers that still need reviewers or a decision.</p></div>
+<table><tr><th>Conference</th><th>Deadline</th><th class="num">Papers</th><th class="num">Accepted</th><th class="num">Rejected</th><th class="num">Still open</th></tr>
 {% for c in conferences %}<tr{% if c.papers == 0 %} class="dim"{% endif %}><td><a href="{{ url_for('organizer_conference', cid=c.conference_id) }}">{{ c.name }} {{ c.year }}</a></td>
 <td class="nowrap">{{ c.deadline }}</td><td class="num">{{ c.papers }}</td><td class="num">{{ c.accepted }}</td><td class="num">{{ c.rejected }}</td>
 <td class="num">{% if c.pending %}<span class="badge badge-pending">{{ c.pending }}</span>{% else %}0{% endif %}</td></tr>{% endfor %}
 </table>
 
-<h2>Acceptance ratio by topic <span class="count">all conferences</span></h2>
-<div class="scroll"><table><tr><th>Topic</th><th class="num">Papers</th><th class="num">Decided</th><th class="num">Accepted</th><th>Acceptance</th></tr>
+<h2>Acceptance rate by topic <span class="count">(all conferences)</span></h2>
+<div class="scroll"><table><tr><th>Topic</th><th class="num">Papers</th><th class="num">Decided</th><th class="num">Accepted</th><th class="num">Acceptance rate</th></tr>
 {% for t in topic_stats %}<tr><td>{{ t.topic_name }}</td><td class="num">{{ t.papers }}</td><td class="num">{{ t.decided }}</td><td class="num">{{ t.accepted }}</td>
-<td>{% if t.accept_pct is not none %}<div class="bar-cell"><div class="bar"><span style="width: {{ t.accept_pct|float }}%"></span></div><b>{{ t.accept_pct }}%</b></div>{% else %}<span class="muted">-</span>{% endif %}</td></tr>{% endfor %}
+<td class="num">{{ t.accept_pct ~ '%' if t.accept_pct is not none else '-' }}</td></tr>{% endfor %}
 </table></div>
 {% endblock %}

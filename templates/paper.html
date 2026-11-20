@@ -1,16 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-<p class="eyebrow">Paper #{{ p.paper_id }}</p>
+<p class="crumbs">Paper #{{ p.paper_id }}</p>
 <h1>{{ p.title }}</h1>
-<div class="paper-card">
-<dl>
+<dl class="paper-info">
+  <dt>Authors</dt><dd>{% for a in authors %}<a href="{{ url_for('public_author', aid=a.person_id) }}">{{ a.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</dd>
   <dt>Conference</dt><dd>{{ p.conf_name }} {{ p.year }}</dd>
   <dt>Submitted</dt><dd>{{ p.submitted_on }}</dd>
-  <dt>Status</dt><dd><span class="badge badge-{{ p.outcome or 'pending' }}">{{ p.outcome or 'pending' }}</span>
-    {% if p.decision_note %}<span class="muted">{{ p.decision_note }}</span>{% endif %}</dd>
-  <dt>Authors</dt><dd>{% for a in authors %}<a href="{{ url_for('public_author', aid=a.person_id) }}">{{ a.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</dd>
+  <dt>Status</dt><dd>{% if p.outcome == 'accept' %}<span class="badge badge-accept">Accepted</span>{% elif p.outcome == 'reject' %}<span class="badge badge-reject">Rejected</span>{% else %}<span class="badge badge-pending">Under review</span>{% endif %}
+    {% if p.decision_note %}<span class="muted">({{ p.decision_note }})</span>{% endif %}</dd>
   <dt>Topics</dt><dd>{% for t in topics %}{{ t.topic_name }}{% if not loop.last %}; {% endif %}{% endfor %}</dd>
 </dl>
-<div class="abstract"><b>Abstract</b><br>{{ p.abstract }}</div>
-</div>
+<div class="abstract"><h2>Abstract</h2><p>{{ p.abstract }}</p></div>
 {% endblock %}

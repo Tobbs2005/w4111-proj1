@@ -1,17 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-<p class="eyebrow">Write a review</p>
+<p class="crumbs"><a href="{{ url_for('reviewer_home', rid=person.person_id) }}">{{ person.name }}</a> &rsaquo; review</p>
 <h1>{{ a.title }}</h1>
-<p class="muted">Reviewer {{ person.name }} &middot; assigned {{ a.assigned_on }} &middot; due {{ a.due_on }}</p>
-<div class="paper-card"><div><b>Abstract</b><br>{{ a.abstract }}</div></div>
+<p class="muted">Assigned {{ a.assigned_on }} &middot; due {{ a.due_on }}</p>
+<div class="goal"><p>{{ 'Update your review of this paper.' if review else 'Read the abstract, then give a score, your confidence and a recommendation.' }}</p></div>
+<div class="abstract"><h2>Abstract</h2><p>{{ a.abstract }}</p></div>
+<fieldset><legend>{{ 'Your review' if review else 'New review' }}</legend>
 <form method="post">
-  <p>Score (1-10) <input name="score" type="number" min="1" max="10" value="{{ review.score if review else '' }}" required>
-  Confidence (1-5) <input name="confidence" type="number" min="1" max="5" value="{{ review.confidence if review else '' }}" required></p>
+  <p>Score (1&ndash;10) <input name="score" type="number" min="1" max="10" value="{{ review.score if review else '' }}" required>
+  Confidence (1&ndash;5) <input name="confidence" type="number" min="1" max="5" value="{{ review.confidence if review else '' }}" required></p>
   <p>Recommendation <select name="recommendation">
     {% for r in recommendations %}<option {% if review and review.recommendation == r %}selected{% endif %}>{{ r }}</option>{% endfor %}
   </select></p>
-  <p>Comments<br><textarea name="comments" rows="6" cols="90" maxlength="2000">{{ review.comments if review and review.comments else '' }}</textarea></p>
+  <p>Comments for the organizers<br><textarea name="comments" rows="6" cols="90" maxlength="2000">{{ review.comments if review and review.comments else '' }}</textarea></p>
   <button>{{ 'Update review' if review else 'Submit review' }}</button>
-  <a href="{{ url_for('reviewer_home', rid=person.person_id) }}">cancel</a>
-</form>
+  <a href="{{ url_for('reviewer_home', rid=person.person_id) }}">Cancel</a>
+</form></fieldset>
 {% endblock %}

@@ -7,12 +7,12 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<header class="topbar">
-  <div class="topbar-inner">
-    <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">PR</span> Conference Peer Review</a>
+<header class="site-header">
+  <div class="inner">
+    <a class="site-name" href="{{ url_for('index') }}">Conference Peer Review</a>
     <nav>
       <a href="{{ url_for('index') }}"{% if request.endpoint == 'index' %} class="active"{% endif %}>Home</a>
-      <a href="{{ url_for('public_search') }}"{% if request.endpoint in ('public_search', 'public_author', 'paper') %} class="active"{% endif %}>Public</a>
+      <a href="{{ url_for('public_search') }}"{% if request.endpoint in ('public_search', 'public_author', 'paper') %} class="active"{% endif %}>Accepted papers</a>
       <a href="{{ url_for('organizer_home') }}"{% if request.endpoint and request.endpoint.startswith('organizer') %} class="active"{% endif %}>Organizer</a>
       <a href="{{ url_for('manage') }}"{% if request.endpoint == 'manage' %} class="active"{% endif %}>Manage</a>
     </nav>
@@ -24,6 +24,6 @@
 {% endwith %}
 {% block content %}{% endblock %}
 </main>
-<footer class="container footer">Conference Peer Review System &middot; COMS W4111 Project 1</footer>
+<footer class="container footer">COMS W4111 Project 1 &middot; Cecilia Yang and Ziyue Fang</footer>
 </body>
 </html>

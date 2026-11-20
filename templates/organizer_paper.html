@@ -3,52 +3,57 @@
 {% macro rec_badge(rec) -%}
 <span class="badge badge-{{ rec|replace(' ', '-') }}{% if rec in ('accept', 'reject') %}-rec{% endif %}">{{ rec }}</span>
 {%- endmacro %}
-<p class="eyebrow">Organizer view &middot; <a href="{{ url_for('organizer_conference', cid=p.conference_id) }}">{{ p.conf_name }} {{ p.year }}</a></p>
+<p class="crumbs"><a href="{{ url_for('organizer_home') }}">Organizer</a> &rsaquo;
+<a href="{{ url_for('organizer_conference', cid=p.conference_id) }}">{{ p.conf_name }} {{ p.year }}</a> &rsaquo; paper</p>
 <h1>{{ p.title }}</h1>
-<p class="muted">Submitted {{ p.submitted_on }} &middot; {% for a in authors %}{{ a.name }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+<p class="muted">Submitted {{ p.submitted_on }} by {% for a in authors %}{{ a.name }}{% if not loop.last %}, {% endif %}{% endfor %}
+&middot; <a href="{{ url_for('paper', pid=p.paper_id) }}">abstract</a></p>
+<div class="goal"><p>Decide on this paper:</p>
+<ol><li>Read the reviews.</li>
+<li>If there are too few, assign another reviewer.</li>
+<li>Record accept or reject at the bottom.</li></ol></div>
 
-<div class="stats compact">
-  <div class="stat"><b>{{ summary.n }}</b><span>reviews</span></div>
-  <div class="stat"><b>{{ summary.avg_score if summary.avg_score is not none else '-' }}</b><span>avg score</span></div>
-  <div class="stat"><b>{{ summary.weighted if summary.weighted is not none else '-' }}</b><span>weighted score</span></div>
-  <div class="stat"><b>{{ summary.positive }}</b><span>positive</span></div>
-  <div class="stat"><b>{% if decision %}<span class="badge badge-{{ decision.outcome }}">{{ decision.outcome }}</span>{% else %}<span class="badge badge-pending">pending</span>{% endif %}</b><span>decision</span></div>
-</div>
+<p class="summary"><b>{{ summary.n }}</b> review{{ '' if summary.n == 1 else 's' }}
+{% if summary.avg_score is not none %}&middot; average score <b>{{ summary.avg_score }}</b>
+&middot; confidence-weighted <b>{{ summary.weighted }}</b> &middot; <b>{{ summary.positive }}</b> recommend accepting{% endif %}
+&middot; decision: {% if decision %}<span class="badge badge-{{ decision.outcome }}">{{ decision.outcome }}</span>{% else %}<span class="muted">none yet</span>{% endif %}</p>
 
-<h2>Assignments and reviews</h2>
+<h2>1. Reviews</h2>
 <table><tr><th>Reviewer</th><th>Due</th><th class="num">Score</th><th class="num">Conf.</th><th>Recommendation</th><th>Comments</th><th></th></tr>
 {% for r in reviews %}<tr><td>{{ r.name }}</td><td class="nowrap">{{ r.due_on }}</td>
-{% if r.score is not none %}<td class="num"><b>{{ r.score }}</b></td><td class="num">{{ r.confidence }}</td><td>{{ rec_badge(r.recommendation) }}</td>
+{% if r.score is not none %}<td class="num">{{ r.score }}</td><td class="num">{{ r.confidence }}</td><td>{{ rec_badge(r.recommendation) }}</td>
 <td>{% if r.comments and r.comments|length > 160 %}<details><summary>{{ r.comments[:160] }}&hellip;</summary>{{ r.comments }}</details>{% else %}{{ r.comments or '' }}{% endif %}</td>
-{% else %}<td colspan="4"><i class="muted">review not submitted</i></td>{% endif %}
+{% else %}<td colspan="4" class="muted">review not turned in yet</td>{% endif %}
 <td><form class="inline" method="post" action="{{ url_for('organizer_unassign', pid=p.paper_id) }}">
   <input type="hidden" name="reviewer_id" value="{{ r.person_id }}"><button>Remove</button></form></td></tr>
-{% else %}<tr><td colspan="7" class="muted">No reviewers assigned.</td></tr>{% endfor %}</table>
+{% else %}<tr><td colspan="7" class="muted">No reviewers assigned yet.</td></tr>{% endfor %}</table>
 
-<h2>Bids <span class="count">{{ bids|length }}</span></h2>
-<table><tr><th>Reviewer</th><th>Affiliation</th><th class="num">Bid</th><th>Assigned?</th></tr>
-{% for b in bids %}<tr><td>{{ b.name }}</td><td>{{ b.affiliation or '' }}</td><td class="num"><b>{{ b.bid_value }}</b></td>
-<td>{% if b.assigned %}<span class="badge badge-accept">assigned</span>{% else %}<span class="muted">no</span>{% endif %}</td></tr>
-{% else %}<tr><td colspan="4" class="muted">No bids.</td></tr>{% endfor %}</table>
-
+<h2>2. Assign a reviewer</h2>
 <div class="two-col">
-<fieldset><legend>Assign a reviewer</legend>
-<p class="muted">Ordered by bid on this paper (highest first), then by how many papers the reviewer
-already has. The paper's authors and reviewers already assigned are left out.</p>
+<fieldset><legend>Assign</legend>
+<p class="muted">Listed by their bid on this paper (highest first), then by how few papers they already have.
+The paper's own authors and reviewers already assigned are left out.</p>
 <form method="post" action="{{ url_for('organizer_assign', pid=p.paper_id) }}">
   <p><select name="reviewer_id">
   {% for s in suggestions %}<option value="{{ s.person_id }}">{{ s.name }}: bid {{ s.bid_value or 'none' }}, {{ s.load }} papers assigned</option>{% endfor %}
   </select></p>
   <p>Due <input name="due_on" type="date" value="{{ default_due }}"> <button>Assign</button></p>
 </form></fieldset>
+<div>
+<p><b>Bids on this paper</b> <span class="count">({{ bids|length }})</span></p>
+<table><tr><th>Reviewer</th><th class="num">Bid</th><th>Assigned</th></tr>
+{% for b in bids %}<tr><td>{{ b.name }}{% if b.affiliation %} <span class="muted">({{ b.affiliation }})</span>{% endif %}</td><td class="num">{{ b.bid_value }}</td>
+<td>{{ 'yes' if b.assigned else '' }}</td></tr>
+{% else %}<tr><td colspan="3" class="muted">No bids.</td></tr>{% endfor %}</table>
+</div>
+</div>
 
-<fieldset><legend>Decision</legend>
-{% if decision %}<p>Current: <span class="badge badge-{{ decision.outcome }}">{{ decision.outcome }}</span> on {{ decision.decided_on }}{% if decision.comments %}<br><span class="muted">{{ decision.comments }}</span>{% endif %}</p>
-{% else %}<p class="muted">No decision yet.</p>{% endif %}
+<h2>3. Decision</h2>
+<fieldset><legend>{{ 'Change the decision' if decision else 'Record a decision' }}</legend>
+{% if decision %}<p>Current decision: <span class="badge badge-{{ decision.outcome }}">{{ decision.outcome }}</span> on {{ decision.decided_on }}{% if decision.comments %} <span class="muted">({{ decision.comments }})</span>{% endif %}</p>{% endif %}
 <form method="post" action="{{ url_for('organizer_decide', pid=p.paper_id) }}">
   <p><select name="outcome"><option>accept</option><option>reject</option></select>
-  <input name="comments" size="50" maxlength="1000" placeholder="Comments, e.g. Accept (Poster)"></p>
-  <p><button>{{ 'Change decision' if decision else 'Record decision' }}</button></p>
+  <input name="comments" size="40" maxlength="1000" placeholder="Note, e.g. Accept (Poster)">
+  <button>{{ 'Change decision' if decision else 'Record decision' }}</button></p>
 </form></fieldset>
-</div>
 {% endblock %}

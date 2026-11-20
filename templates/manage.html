@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-<p class="eyebrow">Manage</p>
+<p class="crumbs">Manage</p>
 <h1>People, conferences and topics</h1>
+<div class="goal"><p>Add the people, conferences and topics the rest of the site uses. One person can be both an author and a reviewer.</p></div>
 
-<h2>People <span class="count">{{ people|length }}</span></h2>
-<p class="muted">Authors and reviewers are overlapping roles of a person: one person can be both.</p>
+<h2>People <span class="count">({{ people|length }})</span></h2>
 <fieldset><legend>Add a person</legend>
 <form method="post" action="{{ url_for('add_person') }}">
   Name <input name="name" required> Email <input name="email" type="email" required>
   Affiliation <input name="affiliation">
   <label><input type="checkbox" name="roles" value="author"> author</label>
   <label><input type="checkbox" name="roles" value="reviewer"> reviewer</label>
-  <button>Add</button>
+  <button>Add person</button>
 </form></fieldset>
 <div class="scroll"><table><tr><th>Name</th><th>Email</th><th>Affiliation</th><th>Author</th><th>Reviewer</th></tr>
 {% for pe in people %}<tr><td>{{ pe.name }}</td><td>{{ pe.email }}</td><td>{{ pe.affiliation or '' }}</td>
@@ -23,17 +23,17 @@
   <input type="hidden" name="role" value="reviewer"><button>make reviewer</button></form>{% endif %}</td></tr>{% endfor %}
 </table></div>
 
-<h2>Conferences</h2>
+<h2>Conferences <span class="count">({{ conferences|length }})</span></h2>
 <fieldset><legend>Add a conference</legend>
 <form method="post" action="{{ url_for('add_conference') }}">
   Name <input name="name" maxlength="100" required> Year <input name="year" type="number" required>
-  Submission deadline <input name="deadline" type="date" required> <button>Add</button>
+  Submission deadline <input name="deadline" type="date" required> <button>Add conference</button>
 </form>
-<p class="muted">The deadline must fall in the conference year or the year before.</p></fieldset>
+<p class="muted">The deadline must be in the conference year or the year before.</p></fieldset>
 <ul>{% for c in conferences %}<li><a href="{{ url_for('organizer_conference', cid=c.conference_id) }}">{{ c.name }} {{ c.year }}</a> (deadline {{ c.deadline }})</li>{% endfor %}</ul>
 
-<h2>Topics</h2>
+<h2>Topics <span class="count">({{ topics|length }})</span></h2>
 <fieldset><legend>Add a topic</legend>
-<form method="post" action="{{ url_for('add_topic') }}"><input name="topic_name" size="60" maxlength="150" required> <button>Add</button></form></fieldset>
+<form method="post" action="{{ url_for('add_topic') }}"><input name="topic_name" size="60" maxlength="150" required> <button>Add topic</button></form></fieldset>
 <ul>{% for t in topics %}<li>{{ t.topic_name }}</li>{% endfor %}</ul>
 {% endblock %}

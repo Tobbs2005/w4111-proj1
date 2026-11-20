@@ -1,32 +1,32 @@
 {% extends "base.html" %}
 {% block content %}
-<p class="eyebrow">Organizer view &middot; <a href="{{ url_for('organizer_home') }}">all conferences</a></p>
+<p class="crumbs"><a href="{{ url_for('organizer_home') }}">Organizer</a> &rsaquo; conference</p>
 <h1>{{ conf.name }} {{ conf.year }}</h1>
-<p class="muted">Submission deadline: {{ conf.deadline }}</p>
+<p class="muted">Submission deadline {{ conf.deadline }}</p>
+<div class="goal"><p>Move every paper to a decision. Start with the papers that are ready, then check the
+papers that still need reviewers or reviews.</p></div>
 
-<div class="stats compact">
-  <div class="stat"><b>{{ papers|length }}</b><span>papers</span></div>
-  <div class="stat"><b>{{ papers|selectattr('outcome', 'equalto', 'accept')|list|length }}</b><span>accepted</span></div>
-  <div class="stat"><b>{{ papers|selectattr('outcome', 'equalto', 'reject')|list|length }}</b><span>rejected</span></div>
-  <div class="stat"><b>{{ papers|selectattr('outcome', 'none')|list|length }}</b><span>pending</span></div>
-  <div class="stat"><b>{{ ready|length }}</b><span>ready to decide</span></div>
-</div>
+<p class="summary"><b>{{ papers|length }}</b> papers:
+<b>{{ papers|selectattr('outcome', 'equalto', 'accept')|list|length }}</b> accepted,
+<b>{{ papers|selectattr('outcome', 'equalto', 'reject')|list|length }}</b> rejected,
+<b>{{ papers|selectattr('outcome', 'none')|list|length }}</b> still open.</p>
 
-<h2>Ready for a decision</h2>
-<p class="muted">Undecided papers where every assigned reviewer has submitted a review.</p>
+<h2>Ready for a decision <span class="count">({{ ready|length }})</span></h2>
+<p class="muted">Open papers where every assigned reviewer has turned in a review.</p>
 <table><tr><th>Paper</th><th class="num">Reviews</th><th class="num">Avg score</th></tr>
 {% for p in ready %}<tr><td><a href="{{ url_for('organizer_paper', pid=p.paper_id) }}">{{ p.title }}</a></td><td class="num">{{ p.reviews }}</td><td class="num">{{ p.avg_score }}</td></tr>
-{% else %}<tr><td colspan="3" class="muted">None.</td></tr>{% endfor %}</table>
+{% else %}<tr><td colspan="3" class="muted">None right now.</td></tr>{% endfor %}</table>
 
-<h2>Submitted papers <span class="count">{{ papers|length }}</span></h2>
+<h2>All papers <span class="count">({{ papers|length }})</span></h2>
 <div class="scroll"><table><tr><th>Paper</th><th>Submitted</th><th class="num">Bids</th><th class="num">Assigned</th><th class="num">Reviews</th><th class="num">Avg score</th><th>Decision</th></tr>
 {% for p in papers %}<tr><td><a href="{{ url_for('organizer_paper', pid=p.paper_id) }}">{{ p.title }}</a></td>
 <td class="nowrap">{{ p.submitted_on }}{% if p.late %} <span class="badge badge-overdue">late</span>{% endif %}</td>
 <td class="num">{{ p.bids }}</td><td class="num">{{ p.assigned }}</td><td class="num">{{ p.reviews }}</td>
-<td class="num">{{ p.avg_score if p.avg_score is not none else '-' }}</td><td><span class="badge badge-{{ p.outcome or 'pending' }}">{{ p.outcome or 'pending' }}</span></td></tr>
+<td class="num">{{ p.avg_score if p.avg_score is not none else '-' }}</td>
+<td>{% if p.outcome %}<span class="badge badge-{{ p.outcome }}">{{ p.outcome }}</span>{% else %}<span class="muted">open</span>{% endif %}</td></tr>
 {% else %}<tr><td colspan="7" class="muted">No papers submitted.</td></tr>{% endfor %}</table></div>
 
-<h2>Reviewer workload at this conference <span class="count">{{ workload|length }} reviewers</span></h2>
+<h2>Reviewer workload <span class="count">({{ workload|length }} reviewer{{ '' if workload|length == 1 else 's' }})</span></h2>
 <div class="scroll"><table><tr><th>Reviewer</th><th>Affiliation</th><th class="num">Assigned</th><th class="num">Reviewed</th></tr>
 {% for w in workload %}<tr><td>{{ w.name }}</td><td>{{ w.affiliation or '' }}</td><td class="num">{{ w.assigned }}</td><td class="num">{{ w.reviewed }}</td></tr>
 {% else %}<tr><td colspan="4" class="muted">No assignments yet.</td></tr>{% endfor %}</table></div>
