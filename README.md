@@ -78,8 +78,10 @@ generated reviews.
 - Sixteen papers have two relevant topics to demonstrate the many-to-many
   paper–topic relationship.
 - Most imported reviewer names are paper-specific anonymous labels
-  (e.g. `ICLR 2024 #9310 Reviewer_BqAx`). Emails are placeholders, and
-  affiliations we could not find are left blank.
+  (e.g. `ICLR 2024 #9310 Reviewer_BqAx`). Emails are generated sample
+  addresses. Affiliations we could not find are left blank. The sample
+  authors and sample reviewers (e.g. `Sample Author 01`, `Grace Thompson`)
+  are fictional people with sample affiliations.
 - Topic names keep each conference's own wording, so related subjects can
   appear under different names (e.g. `reinforcement learning` from ICLR and
   `reinforcement_learning` from NeurIPS).
