@@ -177,3 +177,4 @@ details summary { cursor: pointer; }
 .views td button { background: #1a4d8f; color: #fff; border-color: #1a4d8f; padding: 4px 12px; font-size: 15px; }
 .views td button:hover { background: #143c70; }
 .form-grid textarea { max-width: none; }
+.note { white-space: pre-line; color: var(--muted); }

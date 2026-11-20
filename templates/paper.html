@@ -7,8 +7,10 @@
   <dt>Conference</dt><dd>{{ p.conf_name }} {{ p.year }}</dd>
   <dt>Submitted</dt><dd>{{ p.submitted_on }}</dd>
   <dt>Status</dt><dd>{% if p.outcome == 'accept' %}<span class="badge badge-accept">Accepted</span>{% elif p.outcome == 'reject' %}<span class="badge badge-reject">Rejected</span>{% else %}<span class="badge badge-pending">Under review</span>{% endif %}
-    {% if p.decision_note %}<span class="muted">({{ p.decision_note }})</span>{% endif %}</dd>
+    {% if p.decision_note %}<span class="muted">({{ p.decision_note|decision_label }})</span>{% endif %}</dd>
   <dt>Topics</dt><dd>{% for t in topics %}{{ t.topic_name }}{% if not loop.last %}; {% endif %}{% endfor %}</dd>
 </dl>
-<div class="abstract"><h2>Abstract</h2><p>{{ p.abstract }}</p></div>
+<div class="abstract"><h2>Abstract</h2><p>{{ p.abstract }}</p>
+{% if p.decision_note and p.decision_note|decision_label != p.decision_note.strip() %}
+<details><summary>Decision comments from the program committee</summary><p class="note">{{ p.decision_note }}</p></details>{% endif %}</div>
 {% endblock %}

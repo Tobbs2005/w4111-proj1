@@ -11,7 +11,7 @@
 {% for p in papers %}<tr><td><a href="{{ url_for('paper', pid=p.paper_id) }}">{{ p.title }}</a></td>
 <td class="nowrap">{{ p.conf_name }} {{ p.year }}</td><td class="nowrap">{{ p.submitted_on }}</td>
 <td>{% if p.status == 'accept' %}<span class="badge badge-accept">Accepted</span>{% elif p.status == 'reject' %}<span class="badge badge-reject">Rejected</span>{% else %}<span class="badge badge-pending">Under review</span>{% endif %}
-{% if p.decision_note %}<br><span class="muted">{{ p.decision_note }}</span>{% endif %}</td></tr>
+{% if p.decision_note %}<br><span class="muted">{{ p.decision_note|decision_label }}</span>{% endif %}</td></tr>
 {% else %}<tr><td colspan="4">You have no papers yet.</td></tr>{% endfor %}</table>
 
 <fieldset><legend>Submit a new paper</legend>

@@ -144,8 +144,30 @@ class FormError(Exception):
     pass
 
 
+def clean(v):
+    """Trim a submitted value. NUL bytes are dropped because PostgreSQL text
+    values cannot contain them (psycopg2 would raise an error)."""
+    return v.replace("\x00", "").strip()
+
+
+def arg_str(name):
+    """A text value from the query string, e.g. a search box."""
+    return clean(request.args.get(name, ""))
+
+
+def like_escape(s):
+    """Make % and _ in user input match literally in (I)LIKE patterns
+    (backslash is PostgreSQL's default LIKE escape character)."""
+    return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
+def contains(s):
+    """ILIKE pattern for 'contains s'."""
+    return f"%{like_escape(s)}%"
+
+
 def form_str(name, required=True):
-    v = request.form.get(name, "").strip()
+    v = clean(request.form.get(name, ""))
     if required and not v:
         raise FormError(f"Please fill in '{name.replace('_', ' ')}'.")
     return v or None
@@ -208,6 +230,20 @@ def all_topics():
     return query("SELECT topic_id, topic_name FROM Topics ORDER BY topic_name")
 
 
+@app.template_filter("decision_label")
+def decision_label(note):
+    """Short form of a decision note for lists. Notes imported from
+    OpenReview look like '[OpenReview <id>; original decision: Accept (poster)]'
+    followed by the full meta-review; lists show only 'Accept (poster)'."""
+    if not note:
+        return ""
+    m = re.search(r"original decision:\s*([^\]]+)\]", note)
+    if m:
+        return m.group(1).strip()
+    first = note.strip().splitlines()[0]
+    return first if len(first) <= 80 else first[:77].rstrip() + "..."
+
+
 # =====================================================================
 # Home: choose a view (and, for authors/reviewers, who you are)
 # =====================================================================
@@ -244,7 +280,7 @@ def go():
         return redirect(url_for("index"))
 
     pid = request.args.get("person_id", type=int)
-    typed = request.args.get("person", "").strip()
+    typed = arg_str("person")
     if pid is None and typed:
         chosen = re.search(r"\(#(\d+)\)\s*$", typed)
         if chosen:
@@ -257,9 +293,13 @@ def go():
                 SELECT pe.person_id
                 FROM People pe JOIN {table} x ON x.person_id = pe.person_id
                 WHERE pe.name ILIKE :pat ORDER BY pe.person_id LIMIT 2
-            """, pat=typed + "%")
+            """, pat=like_escape(typed) + "%")
             if len(matches) == 1:
                 pid = matches[0]["person_id"]
+    # The id must belong to someone with this role (e.g. a reviewer-only
+    # person picked in the author box has no author page).
+    if pid is not None and query_one(f"SELECT 1 FROM {table} WHERE person_id = :pid", pid=pid) is None:
+        pid = None
     if pid is None:
         if typed:
             flash(f"No single {role} matches '{typed}'. Pick a name from the suggestions.", "error")
@@ -274,8 +314,8 @@ def go():
 @app.route("/public")
 def public_search():
     """Search accepted papers by title, author name, topic and conference."""
-    title = request.args.get("title", "").strip()
-    author = request.args.get("author", "").strip()
+    title = arg_str("title")
+    author = arg_str("author")
     topic_id = request.args.get("topic_id", type=int)
     conf_id = request.args.get("conference_id", type=int)
 
@@ -298,7 +338,7 @@ def public_search():
                 SELECT 1 FROM Has_Topic ht WHERE ht.paper_id = p.paper_id AND ht.topic_id = :topic_id))
           AND (CAST(:conf_id AS INTEGER) IS NULL OR p.conference_id = :conf_id)
         ORDER BY c.year DESC, p.title
-    """, title_pat=f"%{title}%", author=author, author_pat=f"%{author}%", topic_id=topic_id, conf_id=conf_id)
+    """, title_pat=contains(title), author=author, author_pat=contains(author), topic_id=topic_id, conf_id=conf_id)
 
     return render_template("public_search.html", papers=papers, title=title, author=author,
                            topic_id=topic_id, conf_id=conf_id,
@@ -409,7 +449,7 @@ def author_submit(aid):
 @app.route("/reviewer/<int:rid>")
 def reviewer_home(rid):
     person = get_person(rid, "Reviewers")
-    q = request.args.get("q", "").strip()
+    q = arg_str("q")
     conf_id = request.args.get("conference_id", type=int)
     topic_id = request.args.get("topic_id", type=int)
 
@@ -438,7 +478,7 @@ def reviewer_home(rid):
           AND (CAST(:topic_id AS INTEGER) IS NULL OR EXISTS (
                 SELECT 1 FROM Has_Topic ht WHERE ht.paper_id = p.paper_id AND ht.topic_id = :topic_id))
         ORDER BY c.year DESC, p.title
-    """, rid=rid, pat=f"%{q}%", conf_id=conf_id, topic_id=topic_id)
+    """, rid=rid, pat=contains(q), conf_id=conf_id, topic_id=topic_id)
 
     return render_template("reviewer_home.html", person=person, assignments=assignments, papers=papers,
                            q=q, conf_id=conf_id, topic_id=topic_id,

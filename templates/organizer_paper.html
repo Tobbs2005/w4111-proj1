@@ -50,7 +50,8 @@ The paper's own authors and reviewers already assigned are left out.</p>
 
 <h2>3. Decision</h2>
 <fieldset><legend>{{ 'Change the decision' if decision else 'Record a decision' }}</legend>
-{% if decision %}<p>Current decision: <span class="badge badge-{{ decision.outcome }}">{{ decision.outcome }}</span> on {{ decision.decided_on }}{% if decision.comments %} <span class="muted">({{ decision.comments }})</span>{% endif %}</p>{% endif %}
+{% if decision %}<p>Current decision: <span class="badge badge-{{ decision.outcome }}">{{ decision.outcome }}</span> on {{ decision.decided_on }}{% if decision.comments %} <span class="muted">({{ decision.comments|decision_label }})</span>{% endif %}</p>
+{% if decision.comments and decision.comments|decision_label != decision.comments.strip() %}<details><summary>Full decision comments</summary><p class="note">{{ decision.comments }}</p></details>{% endif %}{% endif %}
 <form method="post" action="{{ url_for('organizer_decide', pid=p.paper_id) }}">
   <p><select name="outcome"><option>accept</option><option>reject</option></select>
   <input name="comments" size="40" maxlength="1000" placeholder="Note, e.g. Accept (Poster)">

@@ -15,7 +15,7 @@
 <div class="scroll"><table>
 <tr><th>Title</th><th>Authors</th><th>Topics</th><th>Conference</th></tr>
 {% for p in papers %}
-<tr><td><a href="{{ url_for('paper', pid=p.paper_id) }}">{{ p.title }}</a>{% if p.decision_note %}<br><span class="muted">{{ p.decision_note }}</span>{% endif %}</td>
+<tr><td><a href="{{ url_for('paper', pid=p.paper_id) }}">{{ p.title }}</a>{% if p.decision_note %}<br><span class="muted">{{ p.decision_note|decision_label }}</span>{% endif %}</td>
 <td>{{ p.authors or '' }}</td><td>{{ p.topics or '' }}</td><td class="nowrap">{{ p.conf_name }} {{ p.year }}</td></tr>
 {% else %}<tr><td colspan="4">No accepted papers match.</td></tr>{% endfor %}
 </table></div>
