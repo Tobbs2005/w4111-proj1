@@ -12,9 +12,8 @@ https://project1-web-233380246940.us-east1.run.app
 
 ## 3. What we implemented
 
-We implemented every part of our Part 1 proposal. The app has four views.
-There is no login: as in our proposal, the user picks an author or reviewer
-by name on the home page.
+We built everything in our Part 1 proposal. The app has four views. There
+is no login. On the home page, you pick an author or reviewer by name.
 
 - **Public:** search accepted papers by title, author, topic and
   conference, and see each author's accepted papers.
@@ -42,11 +41,12 @@ Not implemented: nothing.
 **Organizer conference page (`/organizer/conference/<id>`).** Shows every
 paper in a conference with its number of bids, assignments and reviews, its
 average score and its decision. The most interesting query finds undecided
-papers where *every* assigned reviewer has turned in a review. This is a
-"for all" (division) query written with two nested `NOT EXISTS`: there is no
-assignment for this paper that lacks a review. The page also shows each
-reviewer's workload in that conference (assigned vs. reviewed). The
-conference ID in the URL is the input to all of these queries.
+papers that have at least one assigned reviewer, where *every* assigned
+reviewer has turned in a review. This is a "for all" (division) query
+written with two nested `NOT EXISTS`. It checks that the paper has no
+assignment without a review. The page also shows each reviewer's workload
+in that conference (assigned vs. reviewed). The conference ID in the URL is
+the input to all of these queries.
 
 **Organizer paper page (`/organizer/paper/<id>`).** Shows a paper's bids,
 assignments and reviews, with average and confidence-weighted scores. It
@@ -59,20 +59,38 @@ or change the decision (`INSERT ... ON CONFLICT DO UPDATE`). This page is
 interesting because it combines three relationships (Bids_On, Assigned_To,
 Reviews) and enforces rules in SQL that our schema can't enforce alone.
 
-## 5. AI tools
+## 5. Notes on the data
 
-We used Claude (through Claude Code) for:
+Paper titles, abstracts, author names and original topic labels come from
+OpenReview, covering ICLR 2024/2025 and NeurIPS 2024/2025. Most reviews and
+decisions are also imported. The original 20-paper dataset contains 60
+generated reviews.
 
-- writing and reviewing the Flask routes, SQL queries and HTML templates
-- the page design (CSS and layout)
-- checking the project against the assignment requirements (no ORM,
-  bound parameters for all user input, every entity and relationship
-  reachable from the UI)
-- fixing bugs found while testing: friendly error pages for bad input,
-  showing the decision outcome on the paper page, and a safe redirect
-  after bidding
-- writing this README
-- building and deploying the app to Cloud Run
+- All 2024 and 2025 papers are decided, as they would be today. To show
+  reviewing in progress, a generated conference (Sample Peer Review
+  Conference 2027) has 40 generated papers at four stages, 10 each: no
+  reviewers yet, waiting for reviews, partly reviewed, and ready for a
+  decision.
+- NeurIPS 2025 ratings (1-6) were converted to a 1-10 range. The original
+  ratings are kept in the review comments, e.g.
+  `[original rating 5/6; score=8/10]`.
+- Assignment dates and reviewer bids are generated sample data.
+- Sixteen papers have a second topic, chosen from their titles and
+  abstracts.
+- Most imported reviewer names are paper-specific anonymous labels
+  (e.g. `ICLR 2024 #9310 Reviewer_BqAx`). Emails are placeholders, and
+  affiliations we could not find are left blank.
+- Topic names keep each conference's own wording, so related subjects can
+  appear under different names (e.g. `reinforcement learning` from ICLR and
+  `reinforcement_learning` from NeurIPS).
 
-We reviewed the code, loaded and checked our data in PostgreSQL ourselves,
+## 6. AI tools
+
+We used Claude for writing and reviewing the Flask routes, SQL queries and
+HTML templates, the page design (CSS and layout), and testing the site and
+fixing the bugs that testing found. We also used ChatGPT to prepare the
+OpenReview data imports, generate sample bids, normalize review scores,
+audit the database snapshot and pick the additional topics.
+
+We reviewed the code, loaded and fixed our data in PostgreSQL ourselves,
 and tested the deployed site with that data.
