@@ -4,7 +4,7 @@ Team: Cecilia Yang (zy2644), Ziyue (Toby) Fang (zf2389)
 
 ## 1. PostgreSQL account
 
-`<YOUR_PG_USERNAME>`. This is the same database we used for Part 2.
+`zy2644`. This is the same database we used for Part 2.
 
 ## 2. Web application URL
 
@@ -61,8 +61,18 @@ Reviews) and enforces rules in SQL that our schema can't enforce alone.
 
 ## 5. AI tools
 
-We used Claude (Claude Code) to help write and review the Flask routes,
-SQL queries and HTML templates, to restyle the UI, and to check the project
-against the assignment requirements. We tested all the code ourselves
-against our database, and we checked that all SQL uses bound parameters
-(no SQL injection) and that there is no ORM.
+We used Claude (through Claude Code) for:
+
+- writing and reviewing the Flask routes, SQL queries and HTML templates
+- the page design (CSS and layout)
+- checking the project against the assignment requirements (no ORM,
+  bound parameters for all user input, every entity and relationship
+  reachable from the UI)
+- fixing bugs found while testing: friendly error pages for bad input,
+  showing the decision outcome on the paper page, and a safe redirect
+  after bidding
+- writing this README
+- building and deploying the app to Cloud Run
+
+We reviewed the code, loaded and checked our data in PostgreSQL ourselves,
+and tested the deployed site with that data.
