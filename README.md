@@ -4,7 +4,7 @@ Team: Cecilia Yang (zy2644), Ziyue (Toby) Fang (zf2389)
 
 ## 1. PostgreSQL account
 
-`zy2644`. This is the same database we used for Part 2.
+`zy2644` (database `proj1part2`). This is the same database we used for Part 2.
 
 ## 2. Web application URL
 
@@ -17,8 +17,8 @@ is no login. On the home page, you pick an author or reviewer by name.
 
 - **Public:** search accepted papers by title, author, topic and
   conference, and see each author's accepted papers.
-- **Author:** see your own papers and their status (pending, accept or
-  reject), and submit a new paper with topics and co-authors.
+- **Author:** see your own papers and their status (under review, accepted
+  or rejected), and submit a new paper with topics and co-authors.
 - **Reviewer:** search papers, place or change bids, see your
   assignments (overdue ones are marked), and submit or edit reviews.
 - **Organizer:** paper counts and decisions for each conference,
